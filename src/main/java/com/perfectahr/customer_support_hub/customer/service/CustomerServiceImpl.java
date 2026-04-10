@@ -4,6 +4,8 @@ import com.perfectahr.customer_support_hub.customer.dto.CreateCustomerRequest;
 import com.perfectahr.customer_support_hub.customer.dto.CustomerResponse;
 import com.perfectahr.customer_support_hub.entity.Role;
 import com.perfectahr.customer_support_hub.entity.User;
+import com.perfectahr.customer_support_hub.exception.DuplicateResourceException;
+import com.perfectahr.customer_support_hub.exception.NotFoundException;
 import com.perfectahr.customer_support_hub.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,15 +26,15 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerResponse createCustomer(Long agentId, CreateCustomerRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            throw new RuntimeException("Username already exists");
+            throw new DuplicateResourceException("Username already exists");
         }
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new DuplicateResourceException("Email already exists");
         }
 
         User agent = userRepository.findById(agentId)
-                .orElseThrow(() -> new RuntimeException("Agent not found"));
+                .orElseThrow(() -> new NotFoundException("Agent not found"));
 
         User customer = new User();
         customer.setUsername(request.getUsername());
