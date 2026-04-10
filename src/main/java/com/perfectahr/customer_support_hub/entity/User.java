@@ -1,4 +1,4 @@
-package entity;
+package com.perfectahr.customer_support_hub.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
