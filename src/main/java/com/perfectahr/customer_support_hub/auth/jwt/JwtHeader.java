@@ -1,4 +1,4 @@
-package com.perfectahr.customer_support_hub.security.jwt;
+package com.perfectahr.customer_support_hub.auth.jwt;
 
 import java.time.Instant;
 
