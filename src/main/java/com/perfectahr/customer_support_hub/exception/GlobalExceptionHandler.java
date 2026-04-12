@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(DuplicateResourceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicate(DuplicateResourceException ex) {
+    public ResponseEntity<ErrorResponse> handleDuplicateResource(DuplicateResourceException ex) {
         return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
@@ -24,7 +25,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ErrorResponse> handleApi(ApiException ex) {
+    public ResponseEntity<ErrorResponse> handleApiException(ApiException ex) {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
@@ -33,7 +34,7 @@ public class GlobalExceptionHandler {
         Map<String, String> errors = new LinkedHashMap<>();
 
         for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
-            errors.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
+            errors.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
         ValidationErrorResponse response = new ValidationErrorResponse(
@@ -43,7 +44,7 @@ public class GlobalExceptionHandler {
                 errors
         );
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(Exception.class)
@@ -57,6 +58,7 @@ public class GlobalExceptionHandler {
                 message,
                 LocalDateTime.now()
         );
-        return new ResponseEntity<>(response, status);
+
+        return ResponseEntity.status(status).body(response);
     }
 }

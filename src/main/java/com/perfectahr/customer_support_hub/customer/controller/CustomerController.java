@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/agents/{agentId}/customers")
+@RequestMapping("/api/v1/customers")
 public class CustomerController {
 
     private final CustomerService customerService;
@@ -21,13 +21,12 @@ public class CustomerController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CustomerResponse createCustomer(@PathVariable Long agentId,
-                                           @Valid @RequestBody CreateCustomerRequest request) {
-        return customerService.createCustomer(agentId, request);
+    public CustomerResponse createCustomer(@Valid @RequestBody CreateCustomerRequest request) {
+        return customerService.createCustomer(request);
     }
 
     @GetMapping
-    public List<CustomerResponse> getCustomersByAgent(@PathVariable Long agentId) {
-        return customerService.getCustomersByAgent(agentId);
+    public List<CustomerResponse> getMyCustomers() {
+        return customerService.getMyCustomers();
     }
 }

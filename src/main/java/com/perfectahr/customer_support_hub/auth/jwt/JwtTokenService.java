@@ -2,12 +2,12 @@ package com.perfectahr.customer_support_hub.auth.jwt;
 
 import com.perfectahr.customer_support_hub.entity.User;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtClaimsSet;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class JwtTokenService {
 
     public JwtHeader generateToken(User user, Collection<? extends GrantedAuthority> authorities) {
         Instant now = Instant.now();
-        Instant expiresAt = now.plusSeconds(jwtProperties.accessTokenExpirationMinutes() * 60);
+        Instant expiresAt = now.plus(jwtProperties.accessTokenExpirationMinutes(), ChronoUnit.MINUTES);
 
         List<String> roles = authorities.stream()
                 .map(GrantedAuthority::getAuthority)
@@ -32,16 +32,18 @@ public class JwtTokenService {
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(jwtProperties.issuer())
-                .subject(user.getUsername())
                 .issuedAt(now)
                 .expiresAt(expiresAt)
+                .subject(user.getUsername())
                 .claim("userId", user.getId())
                 .claim("roles", roles)
                 .build();
 
-        String token = jwtEncoder
-                .encode(JwtEncoderParameters.from(claims))
-                .getTokenValue();
+        JwsHeader jwsHeader = JwsHeader.with(MacAlgorithm.HS256).build();
+
+        String token = jwtEncoder.encode(
+                JwtEncoderParameters.from(jwsHeader, claims)
+        ).getTokenValue();
 
         return new JwtHeader(token, expiresAt);
     }
