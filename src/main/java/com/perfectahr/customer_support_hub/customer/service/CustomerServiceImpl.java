@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -37,21 +36,20 @@ public class CustomerServiceImpl implements CustomerService {
             throw new AccessDeniedException("Only AGENT or ADMIN can create customers");
         }
 
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (userRepository.existsByUsername(request.username())) {
             throw new DuplicateResourceException("Username already exists");
         }
 
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new DuplicateResourceException("Email already exists");
         }
 
         User customer = new User();
-        customer.setUsername(request.getUsername());
-        customer.setPassword(request.getPassword());
-        //customer.setPassword(passwordEncoder.encode(request.getPassword()));
-        customer.setFirstName(request.getFirstName());
-        customer.setLastName(request.getLastName());
-        customer.setEmail(request.getEmail());
+        customer.setUsername(request.username());
+        customer.setPassword(passwordEncoder.encode(request.password()));
+        customer.setFirstName(request.firstName());
+        customer.setLastName(request.lastName());
+        customer.setEmail(request.email());
         customer.setRole(Role.CUSTOMER);
 
         if (currentUser.getRole() == Role.AGENT) {

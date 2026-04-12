@@ -9,6 +9,7 @@ import com.perfectahr.customer_support_hub.user.dto.CreateUserRequest;
 import com.perfectahr.customer_support_hub.user.dto.UpdateMyProfileRequest;
 import com.perfectahr.customer_support_hub.user.dto.UserResponse;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,9 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -37,7 +40,7 @@ public class UserServiceImpl implements UserService {
 
         User user = new User();
         user.setUsername(request.username());
-        user.setPassword(request.password());
+        user.setPassword(passwordEncoder.encode(request.password()));
         user.setFirstName(request.firstName());
         user.setLastName(request.lastName());
         user.setEmail(request.email());

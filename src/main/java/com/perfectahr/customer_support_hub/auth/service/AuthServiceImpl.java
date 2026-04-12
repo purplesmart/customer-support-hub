@@ -13,6 +13,7 @@ import com.perfectahr.customer_support_hub.repository.UserRepository;
 import com.perfectahr.customer_support_hub.user.dto.UserResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,19 +25,23 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final JwtTokenService jwtTokenService;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(UserRepository userRepository,
-                           JwtTokenService jwtTokenService) {
+                           JwtTokenService jwtTokenService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.jwtTokenService = jwtTokenService;
+        this.passwordEncoder = passwordEncoder;
     }
+
+    //!user.getPassword().equals(request.password()
 
     @Override
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
 
-        if (user.getPassword() == null || !user.getPassword().equals(request.password())) {
+        if (user.getPassword() == null || passwordEncoder.matches(user.getPassword(),user.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
 
@@ -72,7 +77,7 @@ public class AuthServiceImpl implements AuthService {
 
         User admin = new User();
         admin.setUsername(request.username());
-        admin.setPassword(request.password());
+        admin.setPassword(passwordEncoder.encode(request.password()));
         admin.setFirstName(request.firstName());
         admin.setLastName(request.lastName());
         admin.setEmail(request.email());
