@@ -8,7 +8,6 @@ import com.perfectahr.customer_support_hub.auth.jwt.JwtTokenService;
 import com.perfectahr.customer_support_hub.entity.Role;
 import com.perfectahr.customer_support_hub.entity.User;
 import com.perfectahr.customer_support_hub.exception.DuplicateResourceException;
-import com.perfectahr.customer_support_hub.exception.NotFoundException;
 import com.perfectahr.customer_support_hub.repository.UserRepository;
 import com.perfectahr.customer_support_hub.user.dto.UserResponse;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,14 +33,12 @@ public class AuthServiceImpl implements AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    //!user.getPassword().equals(request.password()
-
     @Override
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(request.username())
                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
 
-        if (user.getPassword() == null || passwordEncoder.matches(user.getPassword(),user.getPassword())) {
+        if (user.getPassword() == null || !passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new BadCredentialsException("Invalid username or password");
         }
 

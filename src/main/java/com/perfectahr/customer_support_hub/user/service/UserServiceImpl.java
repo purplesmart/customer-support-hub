@@ -1,6 +1,5 @@
 package com.perfectahr.customer_support_hub.user.service;
 
-import com.perfectahr.customer_support_hub.entity.Role;
 import com.perfectahr.customer_support_hub.entity.User;
 import com.perfectahr.customer_support_hub.exception.DuplicateResourceException;
 import com.perfectahr.customer_support_hub.exception.NotFoundException;
@@ -8,7 +7,6 @@ import com.perfectahr.customer_support_hub.repository.UserRepository;
 import com.perfectahr.customer_support_hub.user.dto.CreateUserRequest;
 import com.perfectahr.customer_support_hub.user.dto.UpdateMyProfileRequest;
 import com.perfectahr.customer_support_hub.user.dto.UserResponse;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +25,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
-        // For simplicity, only ADMIN is allowed - validation will rely on SecurityContext
-        // If needed, you can enforce roles here as well
 
         if (userRepository.existsByUsername(request.username())) {
             throw new DuplicateResourceException("Username already exists");
